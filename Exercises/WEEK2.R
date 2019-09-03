@@ -56,5 +56,14 @@ Z.mean
 
 ### EXERCISE 1.11
 
+den_inv_gauss <- function(x) {
+  ((2*pi*x^3)^(-1/2))*exp((-(x-1)^2)/(2*x)) 
+}
 
+Cg <- function(x, C) {
+  C*exp(-x/2)
+}
+
+plot(den_inv_gauss(seq(0.001,4,0.001)), type="l")
+lines(Cg(seq(0.001,4,0.001), 1.26))
 

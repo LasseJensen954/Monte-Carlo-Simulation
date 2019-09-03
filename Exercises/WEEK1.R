@@ -12,20 +12,29 @@ slow <- function(a) {
   for (i in seq_along(a)) {
     g[i] <- (a[i] > 0.3)
   }
-  sum(g)
+  sum(g)/length(a)
 }
 
-cppFunction('int fastC(NumericVector x) {
-  register unsigned int n = x.size();
+#cppFunction('int fastC(NumericVector x) {
+#  register unsigned int n = x.size();
+#  register unsigned int total = 0;
+#  for(int i = n; i--;) {
+#    total += x[i] > 0.3;
+#  }
+#  return total;
+#}')
+
+cppFunction('double fastC(NumericVector x) {
+  register double n = x.size();
   register unsigned int total = 0;
   for(int i = n; i--;) {
     total += x[i] > 0.3;
   }
-  return total;
+  return total/n;
 }')
 
 # Perform benchmark.
-microbenchmark::microbenchmark(slow(a), sum(a>0.3), fastC(a))
+microbenchmark::microbenchmark(slow(a), sum(a>0.3)/length(a), fastC(a), times=1)
 
 # Unit: microseconds
 # expr              min        lq       mean   median       uq      max neval
@@ -38,7 +47,21 @@ microbenchmark::microbenchmark(slow(a), sum(a>0.3), fastC(a))
 ### EXERCISE 1.3
 
 ### EXERCISE 1.4
+set.seed(0)
 
+Z.1 <- rlnorm(1000)
+Z.2 <- rlnorm(1000)
+Z.3 <- rlnorm(1000)
+
+Z <- tibble::tibble(Z.1, Z.2, Z.3)
+
+Z.mu    <- purrr::map_dbl(Z, mean)
+Z.sigma <- purrr::map_dbl(Z, var)
+Z.sigma
+
+sum(Z.sigma)
+
+set.seed(0)
 # Samples of normal dist.
 Z.1 <- rnorm(1000)
 Z.2 <- rnorm(1000)
@@ -54,10 +77,11 @@ Z.sigma <- purrr::map_dbl(Z, var)
 # Lognormal variance.
 lognormal.var <- function(mu, sigma) {
   (exp(sigma) - 1) * exp(2 * mu + sigma)
-}
+} 
 
 # Lognormal variance estimate.
 P.var.trial <- sum(lognormal.var(Z.mu, Z.sigma))
+P.var.trial
 
 # Estimate approximative amount of samples R.
 R <- (qnorm(0.975)^2 * P.var.trial) / (eps^2)
@@ -81,7 +105,7 @@ P.var  <- lognormal.var(0, 1) * 3
 R.true <- (qnorm(0.975)^2 * P.var) / (eps^2)
 R.true <- ceiling(R.true)
 
-conf.true <- qnorm(0.975)*sqrt(lognormal.var(0, 1)*3)/sqrt(R.true)
+conf.true <- qnorm(0.975)*sqrt(P.var)/sqrt(R.true)
 
 # sqrt(sum((Z.1-mean(Z.1))^2)/(length(Z.1)-1))
 
@@ -118,4 +142,8 @@ Riemann <- function(x, n) {
   }
   sum(b)*(1/n)
 }
+
+### EXERCISE 1.6
+
+### EXERCISE 1.7
 

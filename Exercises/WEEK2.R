@@ -67,3 +67,36 @@ Cg <- function(x, C) {
 plot(den_inv_gauss(seq(0.001,4,0.001)), type="l")
 lines(Cg(seq(0.001,4,0.001), 1.26))
 
+### EXERCISE 12
+set.seed(0)
+
+n <- 1e5
+p <- 0.01
+
+sim <- rgeom(n, p)
+mean(sim)+1
+
+U <- runif(n)
+
+sim2 <- function(U, p) {
+  a <- ceiling(log(U)/log(1-p))
+}
+
+X <- sim2(U, p)
+mean(X)
+
+microbenchmark::microbenchmark(sim2(U, p), rgeom(n, p))
+
+### EXERCISE 15
+library(tidyverse)
+
+sigma <- matrix(c(25, 15, 15, 18), 2, 2)
+
+data <- MASS::mvrnorm(1000, mu = c(0, 0), Sigma = sigma)
+
+data <- tibble::tibble(x=data[,1], y=data[,2])
+
+smoothScatter(data)
+
+ggplot(data)+geom_hex(aes(x=x,y=y))
+

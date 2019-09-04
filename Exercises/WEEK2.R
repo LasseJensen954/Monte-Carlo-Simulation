@@ -55,17 +55,42 @@ Z.mean <- mean(Z)
 Z.mean
 
 ### EXERCISE 1.11
+lambda <- 1/2
 
-den_inv_gauss <- function(x) {
-  ((2*pi*x^3)^(-1/2))*exp((-(x-1)^2)/(2*x)) 
+invNorm <- function(x) {
+  1 / sqrt(2* pi * x^3) * exp((-(x - 1)^2) / (2 * x))
 }
 
-Cg <- function(x, C) {
-  C*exp(-x/2)
+exp.d <- function(x, l) {
+  l * exp(-l * x)
 }
 
-plot(den_inv_gauss(seq(0.001,4,0.001)), type="l")
-lines(Cg(seq(0.001,4,0.001), 1.26))
+C <- invNorm(1/3)/exp.d(1/3, lambda)
+
+x <- seq(0, 10, 1/1e3)
+
+plot(x, invNorm(x), col = "red", type = "l", xlim = c(0,10), ylim = c(0,1.3))
+lines(x, C*exp.d(x, lambda), col = "blue")
+
+# A-R Algorithm
+R <- 1e6
+
+AR <- function(C) {
+  repeat{
+    y <- rexp(1, rate = lambda)
+    u <- runif(1)
+    
+    if(u < invNorm(y)/(C*exp.d(y, lambda))) {
+      return(y)
+    }
+  }
+}
+
+data <- replicate(R, AR(C))
+
+hist(data, prob = TRUE, breaks = 150, xlim = c(0, 10))
+lines(x, invNorm(x), col = "red")
+
 
 ### EXERCISE 12
 set.seed(0)

@@ -65,6 +65,12 @@ exp.d <- function(x, l) {
   l * exp(-l * x)
 }
 
+max.ar <- function(x){
+  invNorm(x)/exp.d(x, lambda)
+}
+
+optimize(max.ar, interval=c(0,1), maximum=TRUE)
+
 C <- invNorm(1/3)/exp.d(1/3, lambda)
 
 x <- seq(0, 10, 1/1e3)
@@ -117,11 +123,30 @@ library(tidyverse)
 
 sigma <- matrix(c(25, 15, 15, 18), 2, 2)
 
-data <- MASS::mvrnorm(1000, mu = c(0, 0), Sigma = sigma)
+data <- MASS::mvrnorm(1e6, mu = c(0, 0), Sigma = sigma)
 
 data <- tibble::tibble(x=data[,1], y=data[,2])
 
 smoothScatter(data)
 
+col <- densCols(data)
+
+plot(data, col = col)
+
 ggplot(data)+geom_hex(aes(x=x,y=y))
 
+### Blackboard Exercise
+library(tidyverse)
+
+n <- 1e6
+set.seed(0)
+
+data <- tibble::tibble(X=rexp(n), Y=rexp(n))
+
+data <- data %>% filter(Y< 1 & X+Y>1)
+
+hist(data$Y, prob = TRUE, breaks = 110)
+
+plot(density(data$Y))
+
+ggplot(data)+geom_hex(aes(x=X, y=Y))
